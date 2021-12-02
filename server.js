@@ -18,6 +18,11 @@ app.use((req, res, next) => {
 app.get('/data', function (req, res) {
     // FIXME: REQUIRED 1
     // Get gamedata from "https://htf-2021.herokuapp.com/testdata.json" using axios and send data to frontend
+    const axios = require('axios');
+
+    axios.get('https://htf-2021.herokuapp.com/testdata.json').then(resp => {
+
+    console.log(resp.data); });
 });
 
 app.post('/new_solution', async function (req, res) {
@@ -89,13 +94,27 @@ async function _createSolution(){
     var oData = resp.data;
     // FIXME: REQUIRED 2
     // Get random objects from oData by using random generator (_getRandomInt)
+    
+    
+    let wapensId = _getRandomInt(oData.wapens.length-1);
+    let wapens = _getRandomInt(wapensId)
+
+    let dadersId = _getRandomInt(oData.daders.length-1);
+    let daders = oData.daders[dadersId];
+
+
+    let kamersId = _getRandomInt(oData.kamers.length-1);
+    let kamers = _getRandomInt(kamersId)
+ 
     return {
-        "wapen": "",
-        "dader": "",
-        "kamer": ""
+       
+       "wapens": wapens,
+        "daders": daders,
+        "kamers": kamers
+        
     }
 }
-
+_createSolution()
 async function _handleBotData(playerData){
     var botGuesses = [];
     var botLocations = [];
@@ -154,18 +173,31 @@ function _checkData(currentAnswer){
     var solution = JSON.parse(rawdata);
     // FIXME: REQUIRED 3
     // Check object with existing (!) check functions. Return value should be true || false
+    wapen = _checkWapen(currentAnswer.wapen, solution.wapen)
+    dader = _checkDader(currentAnswer.dader, solution.dader)
+    kamer = _checkKamer(currentAnswer.kamer, solution.kamer)
     return {
-        wapen: "",
-        dader: "",
-        kamer: ""
+        wapen: wapen,
+        dader: dader,
+        kamer: kamer
     };
 }
 
+
+
 function _writeGuess(currentAnswer, filePath){
+    let currentguess;
     // FIXME: REQUIRED 4
     // Read content of file (filepath). Add current guess, then write the adjusted content to (filepath).
     // Tip: use 'fs'
+    let data = fs.readFileSync(filePath);
+    let guesses = JSON.parse(data);
+    guesses.guesses.push(currentAnswer);
+    let dataUpdated = JSON.stringify(guesses);
+    fs.writeFileSync(filePath, dataUpdated);
+
 }
+
 
 function _checkWapen(caWapen, soWapen){
     caWapen = parseInt(caWapen.id);
